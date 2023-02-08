@@ -1,17 +1,22 @@
+import cookie from '@fastify/cookie'
 import fastify from 'fastify'
-import { knex } from './database'
-
+import { env } from './env'
+import { transactionRoutes } from './routes/transactions'
 const app = fastify()
 
-app.get('/hello', async () => {
-  const tables = await knex('sqlite_schema').select('*')
+app.register(cookie)
 
-  return tables
+app.addHook('preHandler', async (request, reply) => {
+  console.log(`[${request.method}] ${request.url}`)
+})
+
+app.register(transactionRoutes, {
+  prefix: '/transactions',
 })
 
 app
   .listen({
-    port: 3333,
+    port: env.PORT,
   })
   .then(() => {
     console.log('Server started')
